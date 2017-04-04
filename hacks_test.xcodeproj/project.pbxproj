@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		CE22D7E11E90795A002DC848 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE22D7E01E90795A002DC848 /* main.cpp */; };
+		CE22D7E91E907975002DC848 /* Rational.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE22D7E71E907975002DC848 /* Rational.cpp */; };
+		CE22D7EC1E907CBC002DC848 /* expression.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE22D7EA1E907CBC002DC848 /* expression.cpp */; };
+		CE22D7EF1E909A4F002DC848 /* rules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE22D7ED1E909A4F002DC848 /* rules.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -23,8 +26,16 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		CE1188961E91326600E4AC9C /* rand_func.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rand_func.h; sourceTree = "<group>"; };
+		CE1188971E91554700E4AC9C /* simplify.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = simplify.h; sourceTree = "<group>"; };
 		CE22D7DD1E90795A002DC848 /* hacks_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = hacks_test; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE22D7E01E90795A002DC848 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		CE22D7E71E907975002DC848 /* Rational.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Rational.cpp; sourceTree = "<group>"; };
+		CE22D7E81E907975002DC848 /* Rational.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Rational.hpp; sourceTree = "<group>"; };
+		CE22D7EA1E907CBC002DC848 /* expression.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = expression.cpp; sourceTree = "<group>"; };
+		CE22D7EB1E907CBC002DC848 /* expression.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = expression.hpp; sourceTree = "<group>"; };
+		CE22D7ED1E909A4F002DC848 /* rules.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rules.cpp; sourceTree = "<group>"; };
+		CE22D7EE1E909A4F002DC848 /* rules.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = rules.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +69,14 @@
 			isa = PBXGroup;
 			children = (
 				CE22D7E01E90795A002DC848 /* main.cpp */,
+				CE1188961E91326600E4AC9C /* rand_func.h */,
+				CE22D7EA1E907CBC002DC848 /* expression.cpp */,
+				CE22D7ED1E909A4F002DC848 /* rules.cpp */,
+				CE22D7EE1E909A4F002DC848 /* rules.hpp */,
+				CE22D7EB1E907CBC002DC848 /* expression.hpp */,
+				CE22D7E71E907975002DC848 /* Rational.cpp */,
+				CE22D7E81E907975002DC848 /* Rational.hpp */,
+				CE1188971E91554700E4AC9C /* simplify.h */,
 			);
 			path = hacks_test;
 			sourceTree = "<group>";
@@ -119,7 +138,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE22D7EC1E907CBC002DC848 /* expression.cpp in Sources */,
+				CE22D7EF1E909A4F002DC848 /* rules.cpp in Sources */,
 				CE22D7E11E90795A002DC848 /* main.cpp in Sources */,
+				CE22D7E91E907975002DC848 /* Rational.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,6 +238,8 @@
 		CE22D7E51E90795A002DC848 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -223,6 +247,8 @@
 		CE22D7E61E90795A002DC848 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -246,6 +272,7 @@
 				CE22D7E61E90795A002DC848 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
