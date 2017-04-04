@@ -358,31 +358,36 @@ vector<Rule*> generateSimps() {
 	return SimpList;
 }
 
-int measure(Node* formula){
+int measure(Node* formula, int d){
 	if(formula->Type() == NodeType::Addition ){
 		int sum = 1;
 		for(const auto& term : dynamic_cast<AdditionNode*>(formula)->addends ){
-			sum += measure(term->clone());
+			sum += measure(term->clone(), ++d);
 		}
 		return sum;
 	}
 	if(formula->Type() == NodeType::Multiplication ){
 		int sum = 1;
 		for(const auto& term : dynamic_cast<ProductNode*>(formula)->factors ){
-			sum += measure(term->clone());
+			sum += measure(term->clone(), ++d);
 		}
 		return sum;
 	}
 	if(formula->Type() == NodeType::Exponentiation){
-		return 1 + measure(dynamic_cast<ExpNode*>(formula)->base->clone()) + measure(dynamic_cast<ExpNode*>(formula)->exponent->clone());
+		d++;
+		return 1 + measure(dynamic_cast<ExpNode*>(formula)->base->clone(), d) + measure(dynamic_cast<ExpNode*>(formula)->exponent->clone(), d);
 	}
 	if(formula->isStrictArity1()){
-		return 1 + measure(dynamic_cast<Arity1Node*>(formula)->getArg()->clone());
+		return 1 + measure(dynamic_cast<Arity1Node*>(formula)->getArg()->clone(), ++d);
+	}
+	if(formula->Type() == NodeType::Negation){
+		int d1 = d;
+		return 1 + d + measure(dynamic_cast<Arity1Node*>(formula)->getArg()->clone(), ++d1);
 	}
 	if(formula->Type() == NodeType::ConstantQ)
 	{
 		if(dynamic_cast<RationalNode*>(formula)->getNumber() < Rational(0, 1))
-			return 2;
+			return 1 + d;
 		else
 			return 1;
 	}
@@ -391,12 +396,12 @@ int measure(Node* formula){
 
 Expression simplify_once_cole(vector<Rule*> ruleList, Expression formula){
 	Expression best(formula);
-	int record = measure(formula.head);
+	int record = measure(formula.head, 0);
 	for(const auto& rule : ruleList){
 		for(const auto& term: rule->Apply(formula)){
-			if (measure(term.head->clone()) < record){
+			if (measure(term.head->clone(), 0) < record){
 				best = term;
-				record = measure(term.head->clone());
+				record = measure(term.head->clone(), 0);
 			}
 		}
 	}
@@ -407,7 +412,7 @@ Expression simplify_once_me(const vector<Rule*> &ruleList, Expression formula){
 	Expression best(formula);
 	for(const auto& rule : ruleList){
 		for(const auto& term: rule->Apply(formula)){
-			if (measure(term.head->clone()) < measure(formula.head)){
+			if (measure(term.head->clone(), 0) < measure(formula.head, 0)){
 				best = term;
 				return best;
 			}
@@ -418,7 +423,7 @@ Expression simplify_once_me(const vector<Rule*> &ruleList, Expression formula){
 
 Expression Simplify(const vector<Rule*> &ruleList, Expression formula){
 	Expression best(formula);
-	while(measure(best.head) > measure(simplify_once_me(ruleList, best).head))
+	while(measure(best.head, 0) > measure(simplify_once_me(ruleList, best).head, 0))
 		best = simplify_once_me(ruleList, best);
 	return best;
 }
