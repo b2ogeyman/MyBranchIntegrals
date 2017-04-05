@@ -254,9 +254,6 @@ Expression replace(vector<pair<int, Expression>> replacements, Expression Base){
 		Expression baseClone = Base;
 		Node* child1 = dynamic_cast<ExpNode*>(baseClone.head)->base;
 		Node* child2 = dynamic_cast<ExpNode*>(baseClone.head)->exponent;
-//		*child1 = *(replace(replacements, Expression(child1->clone())).head);
-//		*child2 = *(replace(replacements, Expression(child2->clone())).head);
-//		return baseClone;
 		return Expression(new ExpNode(replace(replacements, Expression(child1->clone())).head->clone(), replace(replacements, Expression(child2->clone())).head->clone()));
 	}
 	else if(Base.head->isStrictArity1()){
@@ -269,6 +266,140 @@ Expression replace(vector<pair<int, Expression>> replacements, Expression Base){
 	return Base;
 }
 
+Expression contract_rationals(Expression Base)
+{
+	if(Base.head->Type() == NodeType::Addition)
+	{
+		Expression baseClone = Base;
+		set <Node*> s;
+		Rational sum(0, 1);
+		for(set<Node*>::iterator it = (dynamic_cast<AdditionNode*>(baseClone.head)->addends).begin(); it != (dynamic_cast<AdditionNode*>(baseClone.head)->addends).end(); ++it)
+		{
+			if((*it)->Type() != NodeType::ConstantQ)
+			{
+				Expression expr((*it)->clone());
+				Expression y = contract_rationals(expr);
+				s.insert(y.head->clone());
+			}
+			else
+				sum += dynamic_cast<RationalNode*>(*it)->getNumber();
+		}
+		if(sum != Rational(0, 1))
+			s.insert(new RationalNode(sum));
+		(dynamic_cast<AdditionNode*>(baseClone.head)->addends).clear();
+		for(set<Node*>::iterator it = s.begin(); it != s.end(); ++it)
+		{
+			(dynamic_cast<AdditionNode*>(baseClone.head)->addends).insert((*it)->clone());
+		}
+		return baseClone;
+	}
+	else if(Base.head->Type() == NodeType::Multiplication){
+		Expression baseClone = Base;
+		set <Node*> s;
+		Rational prod(1, 1);
+		for(set<Node*>::iterator it = (dynamic_cast<ProductNode*>(baseClone.head)->factors).begin(); it != (dynamic_cast<ProductNode*>(baseClone.head)->factors).end(); ++it){
+			if((*it)->Type() != NodeType::ConstantQ)
+				s.insert(contract_rationals(Expression((*it)->clone())).head->clone());
+			else
+				prod *= dynamic_cast<RationalNode*>(*it)->getNumber();
+		}
+		if(prod != Rational(1, 1))
+			s.insert(new RationalNode(prod));
+		(dynamic_cast<ProductNode*>(baseClone.head)->factors).clear();
+		for(set<Node*>::iterator it = s.begin(); it != s.end(); ++it){
+			(dynamic_cast<ProductNode*>(baseClone.head)->factors).insert((*it)->clone());
+		}
+		return baseClone;
+	}
+	else if(Base.head->Type() == NodeType::Exponentiation){
+		Expression baseClone = Base;
+		Node* child1 = dynamic_cast<ExpNode*>(baseClone.head)->base;
+		Node* child2 = dynamic_cast<ExpNode*>(baseClone.head)->exponent;
+		return Expression(new ExpNode(contract_rationals(Expression(child1->clone())).head->clone(), contract_rationals(Expression(child2->clone())).head->clone()));
+	}
+	else if(Base.head->isStrictArity1()){
+		Expression baseClone = Base;
+		Node* child = dynamic_cast<Arity1Node*>(Base.head)->getArg()->clone();
+		dynamic_cast<Arity1Node*>(baseClone.head)->setArg(contract_rationals(Expression(child)).head->clone());
+		//		Expression baseClone = replace(replacements, Expression(child));
+		return baseClone;
+	}
+	return Base;
+}
+
+
+Expression flatten(Expression Base)
+{
+	if(Base.head->Type() == NodeType::Addition)
+	{
+		Expression baseClone = Base;
+		set <Node*> s;
+		for(set<Node*>::iterator it = (dynamic_cast<AdditionNode*>(baseClone.head)->addends).begin(); it != (dynamic_cast<AdditionNode*>(baseClone.head)->addends).end(); ++it)
+		{
+			s.insert(flatten(Expression((*it)->clone())).head->clone());
+		}
+		(dynamic_cast<AdditionNode*>(baseClone.head)->addends).clear();
+		set <Node*> s1;
+		for(set<Node*>::iterator it = s.begin(); it != s.end(); ++it)
+		{
+			if((*it)->Type() != NodeType::Addition)
+				s1.insert((*it)->clone());
+			else
+				for(set<Node*>::iterator jt = (dynamic_cast<AdditionNode*>(*it)->addends).begin(); jt != (dynamic_cast<AdditionNode*>(*it)->addends).end(); ++jt)
+					s1.insert((*jt)->clone());
+		}
+		for(set<Node*>::iterator it = s1.begin(); it != s1.end(); ++it){
+			(dynamic_cast<AdditionNode*>(baseClone.head)->addends).insert((*it)->clone());
+		}
+		return baseClone;
+	}
+	else if(Base.head->Type() == NodeType::Multiplication){
+		Expression baseClone = Base;
+		set <Node*> s;
+		for(set<Node*>::iterator it = (dynamic_cast<ProductNode*>(baseClone.head)->factors).begin(); it != (dynamic_cast<ProductNode*>(baseClone.head)->factors).end(); ++it)
+		{
+			s.insert(flatten(Expression((*it)->clone())).head->clone());
+		}
+		(dynamic_cast<ProductNode*>(baseClone.head)->factors).clear();
+		set <Node*> s1;
+		for(set<Node*>::iterator it = s.begin(); it != s.end(); ++it)
+		{
+			if((*it)->Type() != NodeType::Multiplication)
+				s1.insert((*it)->clone());
+			else
+				for(set<Node*>::iterator jt = (dynamic_cast<ProductNode*>(*it)->factors).begin(); jt != (dynamic_cast<ProductNode*>(*it)->factors).end(); ++jt)
+					s1.insert((*jt)->clone());
+		}
+		for(set<Node*>::iterator it = s1.begin(); it != s1.end(); ++it){
+			(dynamic_cast<ProductNode*>(baseClone.head)->factors).insert((*it)->clone());
+		}
+		return baseClone;
+	}
+	else if(Base.head->Type() == NodeType::Exponentiation){
+		Expression baseClone = Base;
+		Node* child1 = dynamic_cast<ExpNode*>(baseClone.head)->base;
+		Node* child2 = dynamic_cast<ExpNode*>(baseClone.head)->exponent;
+		return Expression(new ExpNode(flatten(Expression(child1->clone())).head->clone(), flatten(Expression(child2->clone())).head->clone()));
+	}
+	else if(Base.head->Type() == NodeType::Inversion){
+		Expression baseClone = Base;
+		Node* child = dynamic_cast<Arity1Node*>(Base.head)->getArg()->clone();
+		if(child->Type() != NodeType::ConstantQ)
+			dynamic_cast<Arity1Node*>(baseClone.head)->setArg(flatten(Expression(child)).head->clone());
+		else
+			dynamic_cast<Arity1Node*>(baseClone.head)->setArg(new RationalNode(Rational(1, 1)/dynamic_cast<RationalNode*>(child)->getNumber()));
+		//		Expression baseClone = replace(replacements, Expression(child));
+		return baseClone;
+	}
+	else if(Base.head->isStrictArity1()){
+		Expression baseClone = Base;
+		Node* child = dynamic_cast<Arity1Node*>(Base.head)->getArg()->clone();
+		dynamic_cast<Arity1Node*>(baseClone.head)->setArg(flatten(Expression(child)).head->clone());
+		//		Expression baseClone = replace(replacements, Expression(child));
+		return baseClone;
+	}
+	return Base;
+}
 
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -9,6 +9,8 @@ using namespace std;
 std::vector<std::vector<std::pair<int, Expression>>> PatternList(const Expression& formula, const Expression& pattern);
 
 Expression replace(vector<pair<int, Expression>> replacements, Expression Base);
+Expression contract_rationals(Expression Base);
+Expression flatten(Expression Base);
 
 class Rule{
 public:

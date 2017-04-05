@@ -46,89 +46,48 @@ int main(int argc, char** argv) {
 	
 //	cout << flags << endl;
 	
-	Expression e(rnd_func(types(flags), 0, height));
+//	Expression e(rnd_func(types(flags), 0, height));
 //	cout << "Evaluate $$\\int" << diff(e) << "dx$$\n" <<  e << "" << endl;
+//	Expression de = diff(e);
+	
+	
+	set<Node*> c;
+	c.insert(new RationalNode(Rational(-6, 5)));
+	c.insert(new RationalNode(Rational(-17, 2)));
+	c.insert(new IdentityNode);
+	set<Node*> cc;
+//	cc.insert(new IdentityNode);
+	cc.insert(new RationalNode(Rational(1, 1)));
+	set<Node*> c1;
+	c1.insert(new RationalNode(Rational(-1, 1)));
+	c1.insert(new AdditionNode(cc));
+	Expression e(new LogNode(new NegationNode(new AdditionNode(c))));
+//	Expression de(new ProductNode);
 	Expression de = diff(e);
 	
-	
-/*	set<Node*> c;
-//	c.insert(new RationalNode(Rational(1, 1)));
-	c.insert(new RationalNode(Rational(1, 1)));
-//	c.insert(new RationalNode(Rational(1, 1)));
-	c.insert(new IdentityNode);
-	set<Node*> c1;
-	c1.insert(new InversionNode(new InversionNode(new IdentityNode)));
-	c1.insert(new ProductNode(c));
-	Expression de(new ProductNode(c1));*/
+	/*set<Node*> nm;
+	nm.insert(new NegationNode(new PatternMatchNode(0)));
+	for(int i = 0; i < 1; i++){
+		nm.insert(new PatternMatchNode(i+1));
+	}
+	Expression negmult(new ProductNode(nm));
+	set<Node*> mn;
+	for(int i = 0; i < 2; i++){
+		mn.insert(new PatternMatchNode(i));
+	}
+	Expression multneg(new NegationNode(new ProductNode(mn)));
+	Rule R9(negmult,multneg);*/
 	
 	cout << e << "\n\n" << de << "\n";
 //	cout << de << "\n";
 	vector <Rule*> rules = generateSimps();
 	Expression dee = Simplify(rules,de);
+//	vector <Expression> v = R9.Apply(dee);
 	cout << "\n\n\n" << dee << "\n";
+//	cout << measure(v[0].head, 0) << " " << measure(dee.head, 0) << "\n";
 //	cout << "\n\n\n" << measure(e.head) << "\n";
+	int x = 1;
+	x++;
 	return 0;
 }
-
-//
-//  main.cpp
-//  hacks_test
-//
-//  Created by kostya on 4/1/17.
-//  Copyright © 2017 kostya. All rights reserved.
-//
-
-/*#include <iostream>
-#include <set>
-#include "rules.hpp"
-#include "simplify.h"
-
-using namespace std;
-
-
-
-int main()
-{
-	//	RationalNode l(Rational(1, 2)), r(Rational(1, 1));
-	set<Node*> c;
-	c.insert(new IdentityNode);
-	c.insert(new IdentityNode);
-	Expression expr(new ProductNode(c));
-	
-	set<Node*> cc;
-	Expression empt(new AdditionNode(cc));
-	
-	set<Node*> cp;
-	cp.insert(new PatternMatchNode(0));
-	cp.insert(new NegationNode(new PatternMatchNode(0)));
-	Expression amina(new AdditionNode(cp));
-	
-	set<Node*> ra2;
-	for(int i = 0; i < 2; i++){
-		ra2.insert(new PatternMatchNode(0));
-	}
-	Expression reppr(new ProductNode(ra2));
-	Expression natexp(new ExpNode(new PatternMatchNode(0), new RationalNode(Rational(2,1)) ));
-	Rule R13(reppr,natexp);
-	Rule R14(natexp,reppr);
-	
-//	vector<pair<int, Expression>> replace_tester;
-//	replace_tester.push_back(make_pair(0, Expression(new RationalNode(Rational(1,1)))));
-	
-//	cout << replace(replace_tester, amina) << endl;
-	
-	vector <Expression> v = R13.Apply(expr);
-//	vector <vector <pair <int, Expression>>> v1 = PatternList(expr, amina);
-	cout << v.size() << "\n";
-	//vector <vector <pair <int, Expression>>> v = PatternList(expr, exprp);
-//	cout << (amina.head)->isEqual(amina1.head) << "\n";
-//	cout << (expr.head)->isEqual(expr1.head) << "\n";
-//	v1 = PatternList(expr1, amina1);
-//	cout << v1.size() << "\n";
-	//	for(int i = 0; i < v.size(); i++)
-	//		cout << v[i].size() << " ";
-	//	cout << "\n";
-	return 0;
-}*/
-
 

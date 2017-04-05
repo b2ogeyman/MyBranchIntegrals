@@ -221,8 +221,8 @@ vector<Rule*> generateSimps() {
 	
 //	Rule* T0 = new Rule(negonerat, minonerat);
 //	SimpList.push_back(T0);
-//	Rule* T00 = new Rule(minonerat, negonerat);
-//	SimpList.push_back(T00);
+	Rule* T00 = new Rule(minonerat, negonerat);
+	SimpList.push_back(T00);
 	Rule* T1 = new Rule(emptsum, zerorat);
 	SimpList.push_back(T1);
 //	Rule* T2 = new Rule(zerorat, emptsum);
@@ -231,6 +231,8 @@ vector<Rule*> generateSimps() {
 	SimpList.push_back(T3);
 //	Rule* T4 = new Rule(onerat, emptprd);
 //	SimpList.push_back(T4);
+	
+	//GET BACK LATER!!!!!!! FIX UNDERLYING ISSUE!!!
 	
 	set <Node*> lonely;
 	lonely.insert(new PatternMatchNode(0));
@@ -362,32 +364,30 @@ int measure(Node* formula, int d){
 	if(formula->Type() == NodeType::Addition ){
 		int sum = 1;
 		for(const auto& term : dynamic_cast<AdditionNode*>(formula)->addends ){
-			sum += measure(term->clone(), ++d);
+			sum += measure(term->clone(), d + 1);
 		}
 		return sum;
 	}
 	if(formula->Type() == NodeType::Multiplication ){
 		int sum = 1;
 		for(const auto& term : dynamic_cast<ProductNode*>(formula)->factors ){
-			sum += measure(term->clone(), ++d);
+			sum += measure(term->clone(), d + 1);
 		}
 		return sum;
 	}
 	if(formula->Type() == NodeType::Exponentiation){
-		d++;
-		return 1 + measure(dynamic_cast<ExpNode*>(formula)->base->clone(), d) + measure(dynamic_cast<ExpNode*>(formula)->exponent->clone(), d);
-	}
-	if(formula->isStrictArity1()){
-		return 1 + measure(dynamic_cast<Arity1Node*>(formula)->getArg()->clone(), ++d);
+		return 1 + measure(dynamic_cast<ExpNode*>(formula)->base->clone(), d + 1) + measure(dynamic_cast<ExpNode*>(formula)->exponent->clone(), d + 1);
 	}
 	if(formula->Type() == NodeType::Negation){
-		int d1 = d;
-		return 1 + d + measure(dynamic_cast<Arity1Node*>(formula)->getArg()->clone(), ++d1);
+		return d + measure(dynamic_cast<Arity1Node*>(formula)->getArg()->clone(), d);
+	}
+	if(formula->isStrictArity1()){
+		return 1 + measure(dynamic_cast<Arity1Node*>(formula)->getArg()->clone(), d + 1);
 	}
 	if(formula->Type() == NodeType::ConstantQ)
 	{
 		if(dynamic_cast<RationalNode*>(formula)->getNumber() < Rational(0, 1))
-			return 1 + d;
+			return 2 + d;
 		else
 			return 1;
 	}
@@ -422,10 +422,11 @@ Expression simplify_once_me(const vector<Rule*> &ruleList, Expression formula){
 }
 
 Expression Simplify(const vector<Rule*> &ruleList, Expression formula){
-	Expression best(formula);
+	Expression best(flatten(formula));
 	while(measure(best.head, 0) > measure(simplify_once_me(ruleList, best).head, 0))
 		best = simplify_once_me(ruleList, best);
-	return best;
+//	return contract_rationals(best);
+	return contract_rationals(flatten(best));
 }
 
 #endif

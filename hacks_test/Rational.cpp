@@ -40,22 +40,28 @@ Rational Rational::operator/(const Rational& other) const  {
 Rational Rational::operator+= (const Rational& other) {
 	numerator = numerator*other.denominator + other.numerator*denominator;
 	denominator *= other.denominator;
+	simplify();
 	return *this;
 }
 
 Rational Rational::operator-= (const Rational& other) {
-	return *this += (-other);
+	numerator = numerator*other.denominator - other.numerator*denominator;
+	denominator *= other.denominator;
+	simplify();
+	return *this;
 }
 
 Rational Rational::operator*= (const Rational& other) {
 	numerator *= other.numerator;
 	denominator *= other.denominator;
+	simplify();
 	return *this;
 }
 
 Rational Rational::operator/= (const Rational& other) {
 	numerator *= other.denominator;
 	denominator *= other.numerator;
+	simplify();
 	return *this;
 }
 
