@@ -95,6 +95,8 @@ public:
 			myStream << 0;
 		else if (q.getDenominator() == 1)
 			myStream << q.getNumerator();
+		else if(q.getNumerator() < 0)
+			myStream << "-\\frac{" << -q.getNumerator() << "}{" << q.getDenominator() << "}";
 		else
 			myStream << "\\frac{" << q.getNumerator() << "}{" << q.getDenominator() << "}";
 		return myStream.str();
@@ -190,7 +192,7 @@ public:
 		bool firstElement = true;
 		
 		for (auto x : addends) {
-			if (!firstElement)
+			if (!firstElement && x->Type() != NodeType::Negation && (x->Type() != ConstantQ || dynamic_cast<RationalNode*>(x)->getNumber() >= Rational(0, 1)))
 				myStream << " + ";
 			else firstElement = false;
 			
@@ -253,7 +255,7 @@ public:
 				myStream << " \\cdot ";
 			else firstElement = false;
 			
-			if (x->Type() == NodeType::Addition || x->Type() == NodeType::Multiplication) {
+			if (x->Type() == NodeType::Addition || x->Type() == NodeType::Multiplication || (x->Type() == ConstantQ && dynamic_cast<RationalNode*>(x)->getNumber() < Rational(0, 1))) {
 				myStream << "\\left(" + x->getString() << "\\right)";
 			}
 			else {
@@ -350,7 +352,7 @@ public:
 	virtual std::string getString() const {
 		std::ostringstream myStream;
 		
-		if (base->Type() == NodeType::Addition || base->Type() == NodeType::Multiplication || base->Type() == NodeType::Exponentiation) {
+		if (base->Type() == NodeType::Addition || base->Type() == NodeType::Multiplication || base->Type() == NodeType::Exponentiation || (base->Type() == NodeType::ConstantQ && dynamic_cast<RationalNode*>(base)->getNumber() != Rational(0, 1) && dynamic_cast<RationalNode*>(base)->getNumber().getDenominator() != 1)) {
 			myStream << "\\left(" + base->getString() + "\\right)";
 		}
 		else {

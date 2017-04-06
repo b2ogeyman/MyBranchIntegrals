@@ -52,16 +52,16 @@ int main(int argc, char** argv) {
 	
 	
 	set<Node*> c;
-	c.insert(new RationalNode(Rational(-6, 5)));
-	c.insert(new RationalNode(Rational(-17, 2)));
+	c.insert(new RationalNode(Rational(-20, 17)));
+	c.insert(new IdentityNode);
 	c.insert(new IdentityNode);
 	set<Node*> cc;
-//	cc.insert(new IdentityNode);
-	cc.insert(new RationalNode(Rational(1, 1)));
+	cc.insert(new ProductNode(c));
+	cc.insert(new ExpNode(new IdentityNode, new RationalNode(Rational(-7, 9))));
 	set<Node*> c1;
 	c1.insert(new RationalNode(Rational(-1, 1)));
 	c1.insert(new AdditionNode(cc));
-	Expression e(new LogNode(new NegationNode(new AdditionNode(c))));
+	Expression e(new NegationNode(new LogNode(new ProductNode(c))));
 //	Expression de(new ProductNode);
 	Expression de = diff(e);
 	

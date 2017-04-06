@@ -275,14 +275,16 @@ Expression contract_rationals(Expression Base)
 		Rational sum(0, 1);
 		for(set<Node*>::iterator it = (dynamic_cast<AdditionNode*>(baseClone.head)->addends).begin(); it != (dynamic_cast<AdditionNode*>(baseClone.head)->addends).end(); ++it)
 		{
-			if((*it)->Type() != NodeType::ConstantQ)
+			if((*it)->Type() == NodeType::ConstantQ)
+				sum += dynamic_cast<RationalNode*>(*it)->getNumber();
+			else if((*it)->Type() == NodeType::Negation && dynamic_cast<NegationNode*>(*it)->getArg()->Type() == NodeType::ConstantQ)
+				sum -= dynamic_cast<RationalNode*>(dynamic_cast<NegationNode*>(*it)->getArg())->getNumber();
+			else
 			{
 				Expression expr((*it)->clone());
 				Expression y = contract_rationals(expr);
 				s.insert(y.head->clone());
 			}
-			else
-				sum += dynamic_cast<RationalNode*>(*it)->getNumber();
 		}
 		if(sum != Rational(0, 1))
 			s.insert(new RationalNode(sum));
@@ -298,10 +300,16 @@ Expression contract_rationals(Expression Base)
 		set <Node*> s;
 		Rational prod(1, 1);
 		for(set<Node*>::iterator it = (dynamic_cast<ProductNode*>(baseClone.head)->factors).begin(); it != (dynamic_cast<ProductNode*>(baseClone.head)->factors).end(); ++it){
-			if((*it)->Type() != NodeType::ConstantQ)
-				s.insert(contract_rationals(Expression((*it)->clone())).head->clone());
-			else
+			if((*it)->Type() == NodeType::ConstantQ)
 				prod *= dynamic_cast<RationalNode*>(*it)->getNumber();
+			else if((*it)->Type() == NodeType::Negation && dynamic_cast<NegationNode*>(*it)->getArg()->Type() == NodeType::ConstantQ)
+				prod *= -(dynamic_cast<RationalNode*>(dynamic_cast<NegationNode*>(*it)->getArg())->getNumber());
+			else
+			{
+				Expression expr((*it)->clone());
+				Expression y = contract_rationals(expr);
+				s.insert(y.head->clone());
+			}
 		}
 		if(prod != Rational(1, 1))
 			s.insert(new RationalNode(prod));

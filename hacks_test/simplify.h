@@ -7,12 +7,15 @@
 
 using namespace std;
 
-int K = 4;
+int K = 10;
 
 vector<Rule*> generateSimps() {
 	vector<Rule*> SimpList;
 	
 	for(int k = 0; k < K; k++) {
+		
+		// a - a + ...
+		
 		set<Node*> cp;
 		cp.insert(new PatternMatchNode(0));
 		cp.insert(new NegationNode(new PatternMatchNode(0)));
@@ -32,6 +35,8 @@ vector<Rule*> generateSimps() {
 		SimpList.push_back(R1);
 		
 		
+		// a*(1/a)*...
+		
 		set<Node*> cp2;
 		cp2.insert(new PatternMatchNode(0));
 		cp2.insert(new InversionNode(new PatternMatchNode(0)));
@@ -49,6 +54,54 @@ vector<Rule*> generateSimps() {
 		Rule* R2 = new Rule(cancel2, empt2);
 		SimpList.push_back(R2);
 		
+		//a*(a^r)*... = a^(r+1)*...
+		
+		set<Node*> cpexp;
+		cpexp.insert(new PatternMatchNode(0));
+		cpexp.insert(new ExpNode(new PatternMatchNode(0), new PatternMatchNode(1)));
+		for(int i = 0; i < k; i++){
+			cpexp.insert(new PatternMatchNode(i + 2));
+		}
+		Expression cancelexp(new ProductNode(cpexp));
+		
+		set<Node*> ccexp;
+		set <Node*> shsum;
+		shsum.insert(new PatternMatchNode(1));
+		shsum.insert(new RationalNode(Rational(1, 1)));
+		ccexp.insert(new ExpNode(new PatternMatchNode(0), new AdditionNode(shsum)));
+		for(int i = 0; i < k; i++){
+			ccexp.insert(new PatternMatchNode(i + 2));
+		}
+		Expression emptexp(new ProductNode(ccexp));
+		
+		Rule* RM2 = new Rule(cancelexp, emptexp);
+		SimpList.push_back(RM2);
+		
+		//(1/a)*(a^r)*... = a^(r-1)*...
+		
+		set<Node*> cpexp1;
+		cpexp1.insert(new InversionNode(new PatternMatchNode(0)));
+		cpexp1.insert(new ExpNode(new PatternMatchNode(0), new PatternMatchNode(1)));
+		for(int i = 0; i < k; i++){
+			cpexp1.insert(new PatternMatchNode(i + 2));
+		}
+		Expression cancelexp1(new ProductNode(cpexp1));
+		
+		set<Node*> ccexp1;
+		set <Node*> shsum1;
+		shsum1.insert(new PatternMatchNode(1));
+		shsum1.insert(new RationalNode(Rational(-1, 1)));
+		ccexp1.insert(new ExpNode(new PatternMatchNode(0), new AdditionNode(shsum1)));
+		for(int i = 0; i < k; i++){
+			ccexp1.insert(new PatternMatchNode(i + 2));
+		}
+		Expression emptexp1(new ProductNode(ccexp1));
+		
+		Rule* RM3 = new Rule(cancelexp1, emptexp1);
+		SimpList.push_back(RM3);
+		
+		
+		//Distributivity
 		
 		for(int l = 0; l < K; l++){
 			
@@ -81,6 +134,8 @@ vector<Rule*> generateSimps() {
 			SimpList.push_back(R4);
 		}
 		
+		//-(a+a) = -a + -a
+		
 		
 		set<Node*> sm1;
 		for(int i = 0; i < k; i++){
@@ -98,6 +153,8 @@ vector<Rule*> generateSimps() {
 		SimpList.push_back(R6);
 		
 		
+		//1/(a*a) = 1/a * 1/a
+		
 		set<Node*> sm2;
 		for(int i = 0; i < k; i++){
 			sm2.insert(new PatternMatchNode(i));
@@ -114,6 +171,8 @@ vector<Rule*> generateSimps() {
 		SimpList.push_back(R8);
 		
 		
+		//(-a)*a = -(a*a)
+		
 		set<Node*> nm;
 		nm.insert(new NegationNode(new PatternMatchNode(0)));
 		for(int i = 0; i < k; i++){
@@ -127,9 +186,11 @@ vector<Rule*> generateSimps() {
 		Expression multneg(new NegationNode(new ProductNode(mn)));
 		Rule* R9 = new Rule(negmult,multneg);
 		SimpList.push_back(R9);
-//		Rule* R10 = new Rule(multneg,negmult);
-//		SimpList.push_back(R10);
+		Rule* R10 = new Rule(multneg,negmult);
+		SimpList.push_back(R10);
 		
+		
+		//a + a + a = 3a
 		
 		set<Node*> ra;
 		for(int i = 0; i < k; i++){
@@ -146,6 +207,8 @@ vector<Rule*> generateSimps() {
 		}
 		Rule* R12 = new Rule(natmult,repad);
 		SimpList.push_back(R12);
+		
+		//a*a*a = a^3
 		
 		set<Node*> ra2;
 		for(int i = 0; i < k; i++){
@@ -210,6 +273,15 @@ vector<Rule*> generateSimps() {
 		
 		
 	}
+	
+	//1/(-a) = -(1/a)
+	
+	Expression neginv(new InversionNode(new NegationNode(new PatternMatchNode(0))));
+	Expression invneg(new NegationNode(new InversionNode(new PatternMatchNode(0))));
+	Rule* RM0 = new Rule(neginv,invneg);
+	SimpList.push_back(RM0);
+	Rule* RM1 = new Rule(invneg,neginv);
+	SimpList.push_back(RM1);
 	
 	set<Node*> empty, empty1;
 	Expression emptsum(new AdditionNode(empty));
@@ -379,7 +451,7 @@ int measure(Node* formula, int d){
 		return 1 + measure(dynamic_cast<ExpNode*>(formula)->base->clone(), d + 1) + measure(dynamic_cast<ExpNode*>(formula)->exponent->clone(), d + 1);
 	}
 	if(formula->Type() == NodeType::Negation){
-		return d + measure(dynamic_cast<Arity1Node*>(formula)->getArg()->clone(), d);
+		return d + 1 + measure(dynamic_cast<Arity1Node*>(formula)->getArg()->clone(), d);
 	}
 	if(formula->isStrictArity1()){
 		return 1 + measure(dynamic_cast<Arity1Node*>(formula)->getArg()->clone(), d + 1);
@@ -391,21 +463,9 @@ int measure(Node* formula, int d){
 		else
 			return 1;
 	}
+	if(formula->Type() == NodeType::Identity)
+		return 3;
 	return 1;
-}
-
-Expression simplify_once_cole(vector<Rule*> ruleList, Expression formula){
-	Expression best(formula);
-	int record = measure(formula.head, 0);
-	for(const auto& rule : ruleList){
-		for(const auto& term: rule->Apply(formula)){
-			if (measure(term.head->clone(), 0) < record){
-				best = term;
-				record = measure(term.head->clone(), 0);
-			}
-		}
-	}
-	return best;
 }
 
 Expression simplify_once_me(const vector<Rule*> &ruleList, Expression formula){
@@ -424,7 +484,7 @@ Expression simplify_once_me(const vector<Rule*> &ruleList, Expression formula){
 Expression Simplify(const vector<Rule*> &ruleList, Expression formula){
 	Expression best(flatten(formula));
 	while(measure(best.head, 0) > measure(simplify_once_me(ruleList, best).head, 0))
-		best = simplify_once_me(ruleList, best);
+		best = contract_rationals(flatten(simplify_once_me(ruleList, best)));
 //	return contract_rationals(best);
 	return contract_rationals(flatten(best));
 }
