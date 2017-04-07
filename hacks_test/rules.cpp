@@ -287,7 +287,12 @@ Expression contract_rationals(Expression Base)
 			}
 		}
 		if(sum != Rational(0, 1))
-			s.insert(new RationalNode(sum));
+		{
+			if(sum < Rational(0, 1))
+				s.insert(new NegationNode(new RationalNode(-sum)));
+			else
+				s.insert(new RationalNode(sum));
+		}
 		(dynamic_cast<AdditionNode*>(baseClone.head)->addends).clear();
 		for(set<Node*>::iterator it = s.begin(); it != s.end(); ++it)
 		{
@@ -312,7 +317,12 @@ Expression contract_rationals(Expression Base)
 			}
 		}
 		if(prod != Rational(1, 1))
-			s.insert(new RationalNode(prod));
+		{
+			if(prod < Rational(0, 1))
+				s.insert(new NegationNode(new RationalNode(-prod)));
+			else
+				s.insert(new RationalNode(prod));
+		}
 		(dynamic_cast<ProductNode*>(baseClone.head)->factors).clear();
 		for(set<Node*>::iterator it = s.begin(); it != s.end(); ++it){
 			(dynamic_cast<ProductNode*>(baseClone.head)->factors).insert((*it)->clone());
@@ -428,7 +438,10 @@ vector<Expression> Rule::Apply(const Expression& formula) {
 				Expression formulaClone = formula;
 				for (set<Node*>::iterator jt = (dynamic_cast<AdditionNode*>(formulaClone.head)->addends).begin(); jt != (dynamic_cast<AdditionNode*>(formulaClone.head)->addends).end();)
 					if((*it)->isEqual(*jt))
+					{
 						jt = (dynamic_cast<AdditionNode*>(formulaClone.head)->addends).erase(jt);
+						break;
+					}
 					else
 						++jt;
 				(dynamic_cast<AdditionNode*>(formulaClone.head)->addends).insert(expr.head->clone());
@@ -444,7 +457,10 @@ vector<Expression> Rule::Apply(const Expression& formula) {
 				Expression formulaClone = formula;
 				for (set<Node*>::iterator jt = (dynamic_cast<ProductNode*>(formulaClone.head)->factors).begin(); jt != (dynamic_cast<ProductNode*>(formulaClone.head)->factors).end();)
 					if((*it)->isEqual(*jt))
+					{
 						jt = (dynamic_cast<ProductNode*>(formulaClone.head)->factors).erase(jt);
+						break;
+					}
 					else
 						++jt;
 				(dynamic_cast<ProductNode*>(formulaClone.head)->factors).insert(expr.head->clone());

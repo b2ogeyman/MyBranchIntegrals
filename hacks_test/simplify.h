@@ -37,7 +37,7 @@ vector<Rule*> generateSimps() {
 		
 		// a*(1/a)*...
 		
-		set<Node*> cp2;
+/*		set<Node*> cp2;
 		cp2.insert(new PatternMatchNode(0));
 		cp2.insert(new InversionNode(new PatternMatchNode(0)));
 		for(int i = 0; i < k; i++){
@@ -52,7 +52,7 @@ vector<Rule*> generateSimps() {
 		Expression empt2(new ProductNode(cc2));
 		
 		Rule* R2 = new Rule(cancel2, empt2);
-		SimpList.push_back(R2);
+		SimpList.push_back(R2);*/
 		
 		//a*(a^r)*... = a^(r+1)*...
 		
@@ -79,7 +79,7 @@ vector<Rule*> generateSimps() {
 		
 		//(1/a)*(a^r)*... = a^(r-1)*...
 		
-		set<Node*> cpexp1;
+/*		set<Node*> cpexp1;
 		cpexp1.insert(new InversionNode(new PatternMatchNode(0)));
 		cpexp1.insert(new ExpNode(new PatternMatchNode(0), new PatternMatchNode(1)));
 		for(int i = 0; i < k; i++){
@@ -98,7 +98,31 @@ vector<Rule*> generateSimps() {
 		Expression emptexp1(new ProductNode(ccexp1));
 		
 		Rule* RM3 = new Rule(cancelexp1, emptexp1);
-		SimpList.push_back(RM3);
+		SimpList.push_back(RM3);*/
+		
+		
+		//(a^q)*(a^r)*... = a^(r+q)*...
+		
+		set<Node*> cpexp2;
+		cpexp2.insert(new ExpNode(new PatternMatchNode(0), new PatternMatchNode(1)));
+		cpexp2.insert(new ExpNode(new PatternMatchNode(0), new PatternMatchNode(2)));
+		for(int i = 0; i < k; i++){
+			cpexp2.insert(new PatternMatchNode(i + 3));
+		}
+		Expression cancelexp2(new ProductNode(cpexp2));
+		
+		set<Node*> ccexp2;
+		set <Node*> shsum2;
+		shsum2.insert(new PatternMatchNode(1));
+		shsum2.insert(new PatternMatchNode(2));
+		ccexp2.insert(new ExpNode(new PatternMatchNode(0), new AdditionNode(shsum2)));
+		for(int i = 0; i < k; i++){
+			ccexp2.insert(new PatternMatchNode(i + 3));
+		}
+		Expression emptexp2(new ProductNode(ccexp2));
+		
+		Rule* RM4 = new Rule(cancelexp2, emptexp2);
+		SimpList.push_back(RM4);
 		
 		
 		//Distributivity
@@ -155,7 +179,7 @@ vector<Rule*> generateSimps() {
 		
 		//1/(a*a) = 1/a * 1/a
 		
-		set<Node*> sm2;
+/*		set<Node*> sm2;
 		for(int i = 0; i < k; i++){
 			sm2.insert(new PatternMatchNode(i));
 		}
@@ -168,7 +192,7 @@ vector<Rule*> generateSimps() {
 		Rule* R7 = new Rule(pn1, pn2);
 		SimpList.push_back(R7);
 		Rule* R8 = new Rule(pn2, pn1);
-		SimpList.push_back(R8);
+		SimpList.push_back(R8);*/
 		
 		
 		//(-a)*a = -(a*a)
@@ -276,12 +300,12 @@ vector<Rule*> generateSimps() {
 	
 	//1/(-a) = -(1/a)
 	
-	Expression neginv(new InversionNode(new NegationNode(new PatternMatchNode(0))));
+/*	Expression neginv(new InversionNode(new NegationNode(new PatternMatchNode(0))));
 	Expression invneg(new NegationNode(new InversionNode(new PatternMatchNode(0))));
 	Rule* RM0 = new Rule(neginv,invneg);
 	SimpList.push_back(RM0);
 	Rule* RM1 = new Rule(invneg,neginv);
-	SimpList.push_back(RM1);
+	SimpList.push_back(RM1);*/
 	
 	set<Node*> empty, empty1;
 	Expression emptsum(new AdditionNode(empty));
@@ -323,30 +347,30 @@ vector<Rule*> generateSimps() {
 	
 	
 	Expression neg2(new NegationNode(new NegationNode(new PatternMatchNode(0))));
-	Expression inv2(new InversionNode(new InversionNode(new PatternMatchNode(0))));
+//	Expression inv2(new InversionNode(new InversionNode(new PatternMatchNode(0))));
 	Expression lolnothing(new PatternMatchNode(0));
 	
 	Rule* D1 = new Rule(neg2,lolnothing);
 	SimpList.push_back(D1);
-	Rule* D2 = new Rule(inv2,lolnothing);
-	SimpList.push_back(D2);
+/*	Rule* D2 = new Rule(inv2,lolnothing);
+	SimpList.push_back(D2);*/
 	Rule* D3 = new Rule(lolnothing,neg2);
 	SimpList.push_back(D3);
-	Rule* D4 = new Rule(lolnothing,inv2);
-	SimpList.push_back(D4);
+/*	Rule* D4 = new Rule(lolnothing,inv2);
+	SimpList.push_back(D4);*/
 	
 	Expression tomin(new ExpNode(new PatternMatchNode(0), new NegationNode(new PatternMatchNode(1))));
-	Expression recto(new ExpNode(new InversionNode(new PatternMatchNode(0)), new PatternMatchNode(1)));
-	Expression recpow(new InversionNode(new ExpNode(new PatternMatchNode(0), new PatternMatchNode(1))));
+//	Expression recto(new ExpNode(new InversionNode(new PatternMatchNode(0)), new PatternMatchNode(1)));
+//	Expression recpow(new InversionNode(new ExpNode(new PatternMatchNode(0), new PatternMatchNode(1))));
 	
-	Rule* E1 = new Rule(tomin, recto);
+/*	Rule* E1 = new Rule(tomin, recto);
 	SimpList.push_back(E1);
 	Rule* E2 = new Rule(recto, tomin);
 	SimpList.push_back(E2);
 	Rule* E3 = new Rule(recto, recpow);
 	SimpList.push_back(E3);
 	Rule* E4 = new Rule(recpow, recto);
-	SimpList.push_back(E4);
+	SimpList.push_back(E4);*/
 	
 	set<Node*> xy;
 	xy.insert(new PatternMatchNode(0));
@@ -414,12 +438,12 @@ vector<Rule*> generateSimps() {
 	Rule* L6 = new Rule(ytlx,xtly);
 	SimpList.push_back(L6);
 	
-	Expression lrec(new LogNode(new InversionNode(new PatternMatchNode(0))));
+/*	Expression lrec(new LogNode(new InversionNode(new PatternMatchNode(0))));
 	Expression negl(new NegationNode(new LogNode(new PatternMatchNode(0))));
 	Rule* L7 = new Rule(lrec,negl);
 	SimpList.push_back(L7);
 	Rule* L8 = new Rule(negl,lrec);
-	SimpList.push_back(L8);
+	SimpList.push_back(L8);*/
 	
 	set<Node*> sinsum;
 	sinsum.insert(new ExpNode(new SinNode(new PatternMatchNode(0)),new RationalNode(Rational(2,1))));
@@ -459,7 +483,7 @@ int measure(Node* formula, int d){
 	if(formula->Type() == NodeType::ConstantQ)
 	{
 		if(dynamic_cast<RationalNode*>(formula)->getNumber() < Rational(0, 1))
-			return 2 + d;
+			return 3 + d;
 		else
 			return 1;
 	}

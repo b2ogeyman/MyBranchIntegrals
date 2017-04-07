@@ -352,12 +352,15 @@ public:
 	virtual std::string getString() const {
 		std::ostringstream myStream;
 		
-		if (base->Type() == NodeType::Addition || base->Type() == NodeType::Multiplication || base->Type() == NodeType::Exponentiation || (base->Type() == NodeType::ConstantQ && dynamic_cast<RationalNode*>(base)->getNumber() != Rational(0, 1) && dynamic_cast<RationalNode*>(base)->getNumber().getDenominator() != 1)) {
+//		if (base->Type() == NodeType::Addition || base->Type() == NodeType::Multiplication || base->Type() == NodeType::Exponentiation || (base->Type() == NodeType::ConstantQ && dynamic_cast<RationalNode*>(base)->getNumber() != Rational(0, 1) && dynamic_cast<RationalNode*>(base)->getNumber().getDenominator() != 1)) {
+		if(1){
 			myStream << "\\left(" + base->getString() + "\\right)";
 		}
 		else {
 			myStream << base->getString();
 		}
+		
+		//TODO: GET PROPER CONDITION THERE
 		
 		myStream << "^";
 		myStream << "{" + exponent->getString() + "}";
@@ -758,7 +761,7 @@ Node* diff(Node const * const head) {
 		std::set<Node*> factors2;
 		factors2.insert(head->clone());
 		factors2.insert(exponent->clone());
-		factors2.insert(new InversionNode(base->clone()));
+		factors2.insert(new ExpNode(base->clone(), new RationalNode(Rational(-1, 1))));
 		if (base->Type() != NodeType::Identity)
 			factors2.insert(diff(base));
 		// Now add them together
@@ -775,11 +778,11 @@ Node* diff(Node const * const head) {
 	}
 	if (head->Type() == NodeType::Inversion) {
 		// Returns -1/x^2
-		return new NegationNode(new InversionNode(new ExpNode(new IdentityNode(), new RationalNode(Rational(2,1)))));
+		return new NegationNode(new ExpNode(new IdentityNode(), new RationalNode(Rational(-2,1))));
 	}
 	if (head->Type() == NodeType::Logarithm) {
 		// Returns 1/x
-		return new InversionNode(new IdentityNode);
+		return new ExpNode(new IdentityNode, new RationalNode(Rational(-1,1)));
 	}
 	if (head->Type() == NodeType::Sine) {
 		// Returns cos(x)
@@ -794,14 +797,14 @@ Node* diff(Node const * const head) {
 		std::set<Node*> addends;
 		addends.insert(new RationalNode(Rational(1,1)));
 		addends.insert(new NegationNode(new ExpNode(new IdentityNode(), new RationalNode(Rational(2,1)))));
-		return new InversionNode(new ExpNode(new AdditionNode(addends), new RationalNode(Rational(1,2))));
+		return new ExpNode(new AdditionNode(addends), new RationalNode(Rational(-1,2)));
 	}
 	if (head->Type() == NodeType::ArcTan) {
 		// Returns 1/(1 + x^2)
 		std::set<Node*> addends;
 		addends.insert(new RationalNode(Rational(1,1)));
 		addends.insert(new ExpNode(new IdentityNode(), new RationalNode(Rational(2,1))));
-		return new InversionNode(new AdditionNode(addends));
+		return new ExpNode(new AdditionNode(addends), new RationalNode(Rational(-1, 1)));
 	}
 	if (head->Type() == NodeType::Identity) {
 		// Returns 1

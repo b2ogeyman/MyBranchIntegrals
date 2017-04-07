@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
 	
 	
 	set<Node*> c;
-	c.insert(new RationalNode(Rational(-20, 17)));
+	c.insert(new RationalNode(Rational(1, 13)));
 	c.insert(new IdentityNode);
 	c.insert(new IdentityNode);
 	set<Node*> cc;
@@ -61,28 +61,21 @@ int main(int argc, char** argv) {
 	set<Node*> c1;
 	c1.insert(new RationalNode(Rational(-1, 1)));
 	c1.insert(new AdditionNode(cc));
-	Expression e(new NegationNode(new LogNode(new ProductNode(c))));
-//	Expression de(new ProductNode);
+	Expression e(new LogNode(new LogNode(new ProductNode(c))));
+//	Expression de(new InversionNode(new ProductNode(c)));
 	Expression de = diff(e);
 	
-	/*set<Node*> nm;
-	nm.insert(new NegationNode(new PatternMatchNode(0)));
-	for(int i = 0; i < 1; i++){
-		nm.insert(new PatternMatchNode(i+1));
-	}
-	Expression negmult(new ProductNode(nm));
-	set<Node*> mn;
-	for(int i = 0; i < 2; i++){
-		mn.insert(new PatternMatchNode(i));
-	}
-	Expression multneg(new NegationNode(new ProductNode(mn)));
-	Rule R9(negmult,multneg);*/
+	/*Expression inv2(new InversionNode(new InversionNode(new PatternMatchNode(0))));
+	Expression lolnothing(new PatternMatchNode(0));
+	
+
+	Rule D2(lolnothing, inv2);*/
 	
 	cout << e << "\n\n" << de << "\n";
 //	cout << de << "\n";
 	vector <Rule*> rules = generateSimps();
 	Expression dee = Simplify(rules,de);
-//	vector <Expression> v = R9.Apply(dee);
+//	vector <Expression> v = D2.Apply(de);
 	cout << "\n\n\n" << dee << "\n";
 //	cout << measure(v[0].head, 0) << " " << measure(dee.head, 0) << "\n";
 //	cout << "\n\n\n" << measure(e.head) << "\n";
